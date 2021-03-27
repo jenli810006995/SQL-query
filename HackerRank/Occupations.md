@@ -45,4 +45,22 @@ from
 group by rownumber
 ;
 ```
+
+MS SQL Solution:
+```
+with cte as
+(
+  select rank() over (partition by occupation order by name) as rnk,
+         case when occupation = 'Doctor' then name else null end as Doctor,
+         case when occupation = 'Professor' then name else null end as Professor,
+         case when occupation = 'Singer' then name else null end as Singer,
+         case when occupation = 'Actor' then name else null end as Actor
+  from occupations
+) 
+select min(Doctor), min(Professor), min(Singer), min(Actor)
+from cte
+group by rnk
+;
+
+```
 Link: https://www.hackerrank.com/challenges/occupations/problem
