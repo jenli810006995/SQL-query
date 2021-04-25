@@ -111,4 +111,18 @@ group by Request_at
 ;
 
 ```
+
+2nd(MSSql):
+```
+select t.Request_at as Day,
+       cast((select cast(count(*) as float) from Trips
+       inner join Users on client_id = users_id
+       where Request_at = t.Request_at and status != 'completed' and banned = 'No')/
+       (select cast(count(*) as float) from Trips inner join users
+       on client_id = users_id where Request_at = t.Request_at and banned = 'No') as decimal(16,2)) as 'Cancellation Rate'
+from Trips t
+where t.Request_at between '2013-10-01' and '2013-10-03'
+group by Request_at
+;
+```
 Link: https://leetcode.com/problems/trips-and-users/
