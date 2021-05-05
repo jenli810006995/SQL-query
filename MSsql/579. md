@@ -1,0 +1,63 @@
+The Employee table holds the salary information in a year.
+
+Write a SQL to get the cumulative sum of an employee's salary over a period of 3 months but exclude the most recent month.
+
+The result should be displayed by 'Id' ascending, and then by 'Month' descending.
+
+Example
+Input
+```
+| Id | Month | Salary |
+|----|-------|--------|
+| 1  | 1     | 20     |
+| 2  | 1     | 20     |
+| 1  | 2     | 30     |
+| 2  | 2     | 30     |
+| 3  | 2     | 40     |
+| 1  | 3     | 40     |
+| 3  | 3     | 60     |
+| 1  | 4     | 60     |
+| 3  | 4     | 70     |
+```
+Output
+```
+| Id | Month | Salary |
+|----|-------|--------|
+| 1  | 3     | 90     |
+| 1  | 2     | 50     |
+| 1  | 1     | 20     |
+| 2  | 1     | 20     |
+| 3  | 3     | 100    |
+| 3  | 2     | 40     |
+```
+
+Solution(MSSql):
+
+```
+select E1.id,
+       E1.month,
+       (coalesce(E1.salary, 0) + coalesce(E2.salary, 0) + coalesce(E3.salary, 0)) as salary
+from
+(
+select id,
+       max(Month) as Month
+from Employee
+group by id
+having count(*) > 1
+) as maxmonth
+left join
+Employee E1
+on maxmonth.id = E1.id
+and maxmonth.Month > E1.month
+left join
+Employee E2
+on E1.id = E2.id
+and E2.month = E1.month - 1
+left join
+Employee E3
+on E1.id = E3.id
+and E3.month = E1.month - 2
+order by id asc, month desc
+;
+```
+Link: https://leetcode.com/problems/find-cumulative-salary-of-an-employee/
