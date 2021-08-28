@@ -41,3 +41,29 @@ on t1.product_id = t.product_id
 ```
 
 Link: https://leetcode.com/problems/product-price-at-a-given-date/
+
+```
+08-28-2021
+
+with t as 
+(
+select product_id, new_price
+from
+(
+  select *, rank() over(partition by product_id order by change_date desc) as rnk
+  from Products
+  where change_date <= '2019-08-16'
+) x
+where rnk = 1
+)
+
+select t1.product_id, case when new_price is null then old_price else new_price end as price
+from
+(
+  select dsitinct product_id, 10 as old_price
+  from products
+) t1
+left join t
+on t.product_id = t1.product_id
+```
+
