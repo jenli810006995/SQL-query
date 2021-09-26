@@ -87,4 +87,28 @@ with cte as
 select case when cte.nr = 0.00 then 0 else cast(cte2.na * 1.0/ cte.nr as decimal(16,2)) end as accept_rate
 from cte, cte2
 ```
+Follow-up 1
+```
+
+with cte as
+(
+  select month(request_date) as mr
+    , count(distinct concat(sender_id, send_to_id)) as nr
+  from FriendRequest
+  group by month(request_date)  
+), cte2 as
+(
+  select month(accept_date) as ma   
+    , coalesce(count(distinct concat(requester_id, accepter_id)), 0) as na
+  from RequestAccepted
+  group by month(accept_date)  
+)
+
+select cte.mr as month, case when cte.nr = 0.00 then 0 else cast(cte2.na * 1.0/ cte.nr as decimal(16,2)) end as accept_rate
+from cte, cte2
+join cte2
+on cte.mr = cte2.ma
+group by cte.mr, cte.nr, cte2.na
+
+```
 [Link](https://leetcode.com/problems/friend-requests-i-overall-acceptance-rate/)
